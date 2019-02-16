@@ -14,17 +14,21 @@ import pandas as pd
 
 from database_interface import get_session
 from database_interface import load_connection
-from database_interface import Food, Food_Attr
-from database_interface import Activities, Activities_Attr
-from database_update import populate_from_testfile
+from database_interface import Food #, Food_Attr
+from database_interface import Activities #, Activities_Attr
+from database_update import populate_from_csv
 
+session = get_session()
 
 class DateGen(object):
     def __init__(self, inout, season, nactivities=2):
         """
         """
         # Ensure that parameters are of correct type.
-        self.inout = inout
+        if 't' in inout.lower():
+            self.inout = 1
+        else:
+            self.inout = 0
         self.season = season.lower()
         self.nactivities = int(nactivities)
 
@@ -65,16 +69,16 @@ class DateGen(object):
             result_activities_action = []
             result_activities_item = []
             for season in ['spring', 'summer', 'fall', 'winter']:
-                query_activities_action = session.query(Activies.action).filter(Activies.inout == self.inout).filter(Activies.season == season).all()
+                query_activities_action = session.query(Activities.action).filter(Activities.inout == self.inout).filter(Activities.season == season).all()
                 result_activities_action += [result[0] for result in query_activities_action]   
 
-                query_activities_item = session.query(Activies.item).filter(Food.inout == self.inout).filter(Food.season == season).all()
+                query_activities_item = session.query(Activities.item).filter(Food.inout == self.inout).filter(Food.season == season).all()
                 result_activities_item += [result[0] for result in query_activities_item]
         else:
-            query_activities_action = session.query(Activies.action).filter(Activies.inout == self.inout).filter(Activies.season == self.season).all()
+            query_activities_action = session.query(Activities.action).filter(Activities.inout == self.inout).filter(Activities.season == self.season).all()
             result_activities_action = [result[0] for result in query_activities_action]    
 
-            query_activities_item = session.query(Activies.item).filter(Food.inout == self.inout).filter(Food.season == self.season).all()
+            query_activities_item = session.query(Activities.item).filter(Food.inout == self.inout).filter(Food.season == self.season).all()
             result_activities_item = [result[0] for result in query_activities_item]
 
         ## Need an exception if return no results.
@@ -91,7 +95,7 @@ class DateGen(object):
     def food_string(self, food_selection):
         """
         """
-        if self.inout:
+        if self.inout == 1:
             print("Stay in and cook {}.".format(food_selection))
         else:
             print("Go out for {}.".format(food_selection))      
@@ -105,24 +109,27 @@ class DateGen(object):
 
         for n, action, item in zip(range(self.nactivities), activities_action_list, activities_item_list):
             if item != 'None':
-                print("{}. {} {}".format(n, action, item))
+                print("{}. {} {}".format(n+1, action, item))
             else:
-                print("{}. {}".format(n, action))
+                print("{}. {}".format(n+1, action))
 
     def run(self):
         """
         """
 
-        print("querying for '{}' and '{}'").format(self.inout, self.season)
+        print("querying for '{}' and '{}'".format(self.inout, self.season))
 
         # Query for food.
         result_food_item = self.query_food()
+        print("result_food_item: ", result_food_item)
 
         # Query for activities.
         result_activities_action, result_activities_item = self.query_activities()
+        print("result_activities_action, result_activities_item: ", result_activities_action, result_activities_item)
 
         # Randomly select a food item.
         food_selection = self.random_select(result_food_item)[0]
+        print("food_selection: ", food_selection)
 
         # Randomly select n activities.
         activities_action_list = []
@@ -154,7 +161,7 @@ def parse_args():
     parser.add_argument('--s', dest='season',
         action='store', type=str, required=True, default=True,
         help="Season? (Spring/Summer/Fall/Winter/Any)")
-    parser.add_argument('--n', dest='inout',
+    parser.add_argument('--n', dest='nactivities',
         action='store', type=int, required=False, default=1,
         help="Number of activities? (Default of 1)")    
 

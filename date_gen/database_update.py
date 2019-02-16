@@ -26,8 +26,8 @@ from database_interface import get_session
 from database_interface import load_connection
 from database_interface import Food
 from database_interface import Activities
-from database_interface import Food_Attr
-from database_interface import Activities_Attr
+#from database_interface import Food_Attr
+#from database_interface import Activities_Attr
 
 
 def update_master_table(Master, master_dict):
@@ -46,9 +46,11 @@ def update_master_table(Master, master_dict):
     """
 
     # Get the id of the record, if it exists
+    print("master_dict: ", master_dict)
     session = get_session()
-    query = session.query(Master.id)\
-        .filter(Master.id == master_dict['master_id']).all()
+    query = session.query(Master.master_id)\
+        .filter(Master.action == master_dict['action']).filter(Master.item == master_dict['item']).all()
+    query = []
     if query == []:
         id_num = ''
     else:
@@ -63,7 +65,7 @@ def insert_or_update(table, data, id_num):
     """
     Insert or update the given database table with the given data.
     This function performs the logic of inserting or updating an
-    entry into the hstlc database; if an entry with the given
+    entry into the database; if an entry with the given
     'id_num' already exists, then the entry is updated, otherwise a
     new entry is inserted.
 
@@ -100,9 +102,13 @@ def populate_from_csv(table, csvfile):
     
     # First read CSV 
     df = pd.read_csv(csvfile)
+    print("df: ", df)
 
     # Change dataframe to a dictionary.
     d = df.to_dict('list')
+    print("d: ", d)
+
+    d = {'inout':1,'action':'walk','item':'None','season':'spring'}
 
     update_master_table(table, d)
 

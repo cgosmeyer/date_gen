@@ -1,5 +1,5 @@
 MASTER_ID, Integer
-IN, Integer
+INOUT, Integer
 ACTION, String
 ITEM, String
 SEASON, String

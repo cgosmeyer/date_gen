@@ -191,7 +191,7 @@ def orm_attributes_factory(class_name, master_table, master_name):
     class_attributes_dict = {}
     class_attributes_dict['id'] = Column(Integer, primary_key=True, index=True)
     class_attributes_dict['__tablename__'] = class_name.lower()
-    class_attributes_dict = define_columns(class_attributes_dict, 'attributes')
+    class_attributes_dict = define_columns(class_attributes_dict, class_name.split('_')[1].lower())
 
     return type(class_name.upper(), (base,), class_attributes_dict)
 
@@ -201,8 +201,8 @@ def orm_attributes_factory(class_name, master_table, master_name):
 
 Food = orm_master_factory('food')
 Activities = orm_master_factory('activities')
-Food_Attr = orm_attributes_factory('food_attr', Food, 'food')
-Activities_Attr = orm_attributes_factory('activities_attr', Activities, 'activities')
+#Food_Attr = orm_attributes_factory('food_attr', Food, 'food')
+#Activities_Attr = orm_attributes_factory('activities_attr', Activities, 'activities')
 
 
 #-------------------------------------------------------------------------------# 
