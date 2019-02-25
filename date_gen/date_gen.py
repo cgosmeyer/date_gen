@@ -26,10 +26,10 @@ class DateGen(object):
         """
         # Ensure that parameters are of correct type.
         if 't' in inout.lower():
-            self.inout = 1
+            self.inout = 1.0
         else:
-            self.inout = 0
-        self.season = season.lower()
+            self.inout = 0.0
+        self.season = season.lower().strip()
         self.nactivities = int(nactivities)
 
         self.update_db()
@@ -54,8 +54,13 @@ class DateGen(object):
                 query_food_item = session.query(Food.item).filter(Food.inout == self.inout).filter(Food.season == season).all()
                 result_food_item += [result[0] for result in query_food_item]
         else:
-            query_food_item = session.query(Food.item).filter(Food.inout == self.inout).filter(Food.season == self.season).all()
+            print(session.query(Food.inout).all())
+            print("self.inout: ", self.inout)
+            print("self.season: ", self.season)
+            query_food_item = session.query(Food.item).filter(Food.season == 'any').all()  #filter(Food.inout == 1).
+            print("query_food_item: ", query_food_item)
             result_food_item = [result[0] for result in query_food_item]
+            print("result_food_item: ", result_food_item)
 
         ## Need an exception if return no results.
 
@@ -117,7 +122,7 @@ class DateGen(object):
         """
         """
 
-        print("querying for '{}' and '{}'".format(self.inout, self.season))
+        print("querying for in='{}' and season='{}'".format(self.inout, self.season))
 
         # Query for food.
         result_food_item = self.query_food()

@@ -50,7 +50,6 @@ def update_master_table(Master, master_dict):
     session = get_session()
     query = session.query(Master.master_id)\
         .filter(Master.action == master_dict['action']).filter(Master.item == master_dict['item']).all()
-    query = []
     if query == []:
         id_num = ''
     else:
@@ -104,13 +103,14 @@ def populate_from_csv(table, csvfile):
     df = pd.read_csv(csvfile)
     print("df: ", df)
 
-    # Change dataframe to a dictionary.
-    d = df.to_dict('list')
-    print("d: ", d)
-
-    d = {'inout':1,'action':'walk','item':'None','season':'spring'}
-
-    update_master_table(table, d)
+    # For each col name, make each item in colimn list its own dictionary,
+    # and then feed the dictionary to the database.
+    for i in range(len(df)):
+        d = {}
+        for key in list(df):
+            d[key] = df[key].values[i]
+        print("d: ", d)
+        update_master_table(table, d)
 
     ## Do some typo checking. ie, that season only one of five possibilities
 
